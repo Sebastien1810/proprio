@@ -247,6 +247,10 @@ function GameContent({ roomId }) {
     emit('refuse_purchase', { propertyId });
   }
 
+  function handleSkip() {
+    setPendingPropId(null);
+  }
+
   function handleEndTurn() {
     setLastAction(null);
     setPendingPropId(null);
@@ -390,6 +394,7 @@ function GameContent({ roomId }) {
           onRollDice={handleRollDice}
           onBuy={handleBuy}
           onRefuse={handleRefuse}
+          onSkip={handleSkip}
           onEndTurn={handleEndTurn}
           onOpenTrade={() => setTradeModal('send')}
           onOpenAlliance={() => setAllianceModal('propose')}

@@ -4,7 +4,7 @@ export default function ActionPanel({
   gameState, myPlayerId,
   pendingPropertyId,
   lastAction,
-  onRollDice, onBuy, onRefuse, onEndTurn,
+  onRollDice, onBuy, onRefuse, onSkip, onEndTurn,
   onOpenTrade, onOpenAlliance,
 }) {
   const me = gameState?.players?.find(p => p.id === myPlayerId);
@@ -87,7 +87,7 @@ export default function ActionPanel({
 
         {/* Après le lancer — prop disponible */}
         {hasRolled && !mustRollAgain && pendingSq && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="bg-blue-900/40 border border-blue-500/30 rounded-xl px-4 py-3">
               <p className="text-sm text-gray-300 mb-0.5">
                 Tu es sur <strong className="text-white">{pendingSq.name}</strong> — {pendingSq.price}€
@@ -103,12 +103,19 @@ export default function ActionPanel({
               </button>
               <button
                 onClick={() => onRefuse?.(pendingSq.id)}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-gray-300 font-medium py-3 rounded-xl transition"
+                className="flex-1 bg-white/10 hover:bg-white/20 text-gray-300 font-medium py-3 rounded-xl transition text-sm"
                 data-testid="refuse-btn"
               >
-                Enchères
+                Passer aux enchères
               </button>
             </div>
+            <button
+              onClick={() => onSkip?.()}
+              className="w-full text-gray-500 hover:text-gray-400 text-sm py-1.5 transition"
+              data-testid="skip-btn"
+            >
+              Ne pas acheter
+            </button>
           </div>
         )}
 

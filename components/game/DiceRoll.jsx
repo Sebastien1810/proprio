@@ -97,8 +97,6 @@ function Cube3D({ cubeRef, duration }) {
 export default function DiceRoll({ result, onDone }) {
   const cube1Ref   = useRef(null);
   const cube2Ref   = useRef(null);
-  const spins1     = useRef(0);
-  const spins2     = useRef(0);
   const onDoneRef  = useRef(onDone);
   const [visible,  setVisible]  = useState(false);
   const [showBadge, setShowBadge] = useState(false);
@@ -112,34 +110,48 @@ export default function DiceRoll({ result, onDone }) {
     setShowBadge(false);
 
     const [v1, v2] = result.diceValues ?? [1, 1];
-
-    spins1.current += 2;
-    spins2.current += 3;
-
     const r1 = FACE_ROTATIONS[v1] ?? { x: 0, y: 0 };
     const r2 = FACE_ROTATIONS[v2] ?? { x: 0, y: 0 };
 
-    const tx1 = r1.x + spins1.current * 360;
-    const ty1 = r1.y + spins1.current * 360;
-    const tx2 = r2.x + spins2.current * 360;
-    const ty2 = r2.y + spins2.current * 360;
+    // Rotations fixes (non cumulatives) — 2 et 3 tours complets
+    const tx1 = r1.x + 2 * 360;
+    const ty1 = r1.y + 2 * 360;
+    const tx2 = r2.x + 3 * 360;
+    const ty2 = r2.y + 3 * 360;
 
-    // rAF garantit que le DOM est peint avant d'appliquer la transition
-    const raf = requestAnimationFrame(() => {
-      if (cube1Ref.current)
-        cube1Ref.current.style.transform = `rotateX(${tx1}deg) rotateY(${ty1}deg)`;
-      if (cube2Ref.current)
-        cube2Ref.current.style.transform = `rotateX(${tx2}deg) rotateY(${ty2}deg)`;
+    // Étape 1 : reset instantané vers position neutre (sans transition)
+    [cube1Ref, cube2Ref].forEach(ref => {
+      if (ref.current) {
+        ref.current.style.transition = 'none';
+        ref.current.style.transform  = 'rotateX(0deg) rotateY(0deg)';
+      }
+    });
+
+    // Étape 2 : deux rAF pour garantir le rendu avant d'animer
+    let raf2;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        if (cube1Ref.current) {
+          cube1Ref.current.style.transition = 'transform 1.4s cubic-bezier(0.15, 0.5, 0.1, 1)';
+          cube1Ref.current.style.transform  = `rotateX(${tx1}deg) rotateY(${ty1}deg)`;
+        }
+        if (cube2Ref.current) {
+          cube2Ref.current.style.transition = 'transform 1.6s cubic-bezier(0.15, 0.5, 0.1, 1)';
+          cube2Ref.current.style.transform  = `rotateX(${tx2}deg) rotateY(${ty2}deg)`;
+        }
+      });
     });
 
     const t1 = setTimeout(() => setShowBadge(true), 1600);
     const t2 = setTimeout(() => {
       setVisible(false);
+      setShowBadge(false);
       onDoneRef.current?.();
     }, 2400);
 
     return () => {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
       clearTimeout(t1);
       clearTimeout(t2);
     };

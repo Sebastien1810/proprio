@@ -31,7 +31,7 @@ function darken(hex, amount) {
 
 const CORNER_LABEL  = { start: '▶', jail: '⛓', parking: '🅿', free_parking: '🆓' };
 const SPECIAL_LABEL = { event: '✉', tax: '🏛', transport: '🚇', nightclub_spot: '🌙' };
-const BUILD_DOTS    = { studio: '▪', appart: '▪▪', immeuble: '▪▪▪', nightclub: '★' };
+const BUILD_SQUARES = { studio: 1, appart: 2, immeuble: 3 };
 
 function pts(arr) {
   return arr.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
@@ -54,7 +54,7 @@ function OwnerPion({ cx, cy, player, r }) {
   );
 }
 
-export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, colocPlayers, isSelected, onClick }) {
+export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, colocPlayers, isSelected, isNight, onClick }) {
   const base  = getTileColor(sq);
   const left  = darken(base, 45);
   const right = darken(base, 28);
@@ -95,14 +95,6 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
         ? ownerPlayer.color
         : null;
 
-  // Who to show as owner(s)
-  const displayOwners = colocPlayers && colocPlayers.length >= 2
-    ? colocPlayers.slice(0, 2)
-    : ownerPlayer
-      ? [ownerPlayer]
-      : [];
-
-  const pionR      = Math.max(5, W * 0.095);
   const patternId  = `stripe-${sq.id}`;
 
   return (
@@ -188,7 +180,7 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
         </text>
       )}
 
-      {/* Price + building */}
+      {/* Price */}
       {showNamePrice && sq.price && (
         <text
           x={cx} y={label ? cy + nameFontSize * 0.85 : cy}
@@ -197,20 +189,38 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
           fill="rgba(255,255,255,0.65)"
           style={{ pointerEvents: 'none', fontFamily: 'var(--font-bebas), Impact, sans-serif', letterSpacing: '0.04em' }}
         >
-          {sq.price}€{sq.building ? ` ${BUILD_DOTS[sq.building]}` : ''}
+          {sq.price}€
         </text>
       )}
 
-      {/* Owner pion(s) — upper-right of diamond */}
-      {displayOwners.length === 1 && (
-        <OwnerPion cx={cx + W * 0.28} cy={cy - H * 0.28} player={displayOwners[0]} r={pionR} />
-      )}
-      {displayOwners.length >= 2 && (
-        <>
-          <OwnerPion cx={cx + W * 0.28} cy={cy - H * 0.28} player={displayOwners[0]} r={pionR} />
-          <OwnerPion cx={cx + W * 0.16} cy={cy - H * 0.20} player={displayOwners[1]} r={pionR} />
-        </>
-      )}
+      {/* Construction icons */}
+      {ownerPlayer && sq.building && (() => {
+        const iconY  = cy + H * 0.3;
+        const color  = ownerPlayer.color;
+        if (sq.building === 'nightclub') {
+          return (
+            <text x={cx} y={iconY} textAnchor="middle" dominantBaseline="middle"
+              fontSize={Math.max(6, W * 0.12)} fill="#F0A500"
+              style={{ pointerEvents: 'none' }}>
+              🌙
+              {isNight && <animate attributeName="opacity" values="1;0.25;1" dur="1.2s" repeatCount="indefinite" />}
+            </text>
+          );
+        }
+        const count = BUILD_SQUARES[sq.building] ?? 0;
+        const sz    = Math.max(4, Math.min(6, W * 0.1));
+        const gap   = 2;
+        const total = count * sz + (count - 1) * gap;
+        const x0    = cx - total / 2;
+        return Array.from({ length: count }, (_, i) => (
+          <rect key={i}
+            x={x0 + i * (sz + gap)} y={iconY - sz / 2}
+            width={sz} height={sz} rx={1}
+            fill={color} opacity={0.9}
+            style={{ pointerEvents: 'none' }}
+          />
+        ));
+      })()}
 
       {/* Mortgage HYPO badge */}
       {sq.mortgaged && (

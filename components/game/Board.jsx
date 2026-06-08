@@ -179,6 +179,7 @@ export default function Board({ gameState, myPlayerId, selectedSquareId, onTileC
             ownerPlayer={sq.ownerId ? (playersById[sq.ownerId] ?? null) : null}
             colocPlayers={(sq.coOwners ?? []).map(id => playersById[id]).filter(Boolean)}
             isSelected={sq.id === selectedSquareId}
+            isNight={gameState?.isNight ?? false}
             onClick={() => {
               if (dragDist.current < 6) onTileClick?.(sq);
             }}
