@@ -31,6 +31,58 @@ export default function Board({ gameState, myPlayerId, selectedSquareId, onTileC
   const [scale,  setScale]  = useState(1);
   const [rotate, setRotate] = useState(0);
 
+  // ── Pion animation state ──────────────────────────────────────────────────
+  const prevPosRef = useRef({});                   // playerId → last target position
+  const [visPos,   setVisPos]   = useState({});    // playerId → current visual square index
+  const [badges,   setBadges]   = useState([]);    // [{ id, playerId }] for +300€ badge
+
+  useEffect(() => {
+    if (!gameState) return;
+    const boardSize = gameState.boardSize;
+    const moves = [];
+
+    for (const player of gameState.players) {
+      const pid    = player.id;
+      const newPos = player.position;
+
+      if (!player.alive) {
+        prevPosRef.current[pid] = undefined;
+        setVisPos(prev => { const n = { ...prev }; delete n[pid]; return n; });
+        continue;
+      }
+
+      const oldPos = prevPosRef.current[pid];
+      if (oldPos === undefined) {
+        prevPosRef.current[pid] = newPos;
+        setVisPos(prev => ({ ...prev, [pid]: newPos }));
+        continue;
+      }
+      if (oldPos === newPos) continue;
+
+      const path = [];
+      let cur = oldPos;
+      while (cur !== newPos) {
+        cur = (cur + 1) % boardSize;
+        path.push(cur);
+      }
+      prevPosRef.current[pid] = newPos;
+      moves.push({ pid, path });
+    }
+
+    for (const { pid, path } of moves) {
+      path.forEach((sq, step) => {
+        setTimeout(() => {
+          setVisPos(prev => ({ ...prev, [pid]: sq }));
+          if (sq === 0) {
+            const badgeId = `${pid}-${Date.now()}`;
+            setBadges(prev => [...prev, { id: badgeId, playerId: pid }]);
+            setTimeout(() => setBadges(prev => prev.filter(b => b.id !== badgeId)), 1300);
+          }
+        }, step * 180);
+      });
+    }
+  }, [gameState?.players, gameState?.boardSize]);
+
   const containerRef = useRef(null);
   const isDragging   = useRef(false);
   const isRotating   = useRef(false);
@@ -108,15 +160,18 @@ export default function Board({ gameState, myPlayerId, selectedSquareId, onTileC
   const offX = (gridN - 1) * W / 2 + W / 2 + PAD;
   const offY = H / 2 + PAD;
 
-  const playersByPos = useMemo(() => {
+  // Use visPos for animated positions; fall back to gameState position if not yet initialized
+  const playersByVisPos = useMemo(() => {
+    if (!gameState) return {};
     const map = {};
     for (const p of gameState.players) {
       if (!p.alive) continue;
-      if (!map[p.position]) map[p.position] = [];
-      map[p.position].push(p);
+      const pos = visPos[p.id] !== undefined ? visPos[p.id] : p.position;
+      if (!map[pos]) map[pos] = [];
+      map[pos].push(p);
     }
     return map;
-  }, [gameState.players]);
+  }, [visPos, gameState?.players]);
 
   const playersById = useMemo(() => {
     const map = {};
@@ -175,7 +230,7 @@ export default function Board({ gameState, myPlayerId, selectedSquareId, onTileC
             W={W}
             H={H}
             D={D}
-            players={playersByPos[idx] ?? []}
+            players={playersByVisPos[idx] ?? []}
             ownerPlayer={sq.ownerId ? (playersById[sq.ownerId] ?? null) : null}
             colocPlayers={(sq.coOwners ?? []).map(id => playersById[id]).filter(Boolean)}
             isSelected={sq.id === selectedSquareId}
@@ -210,6 +265,26 @@ export default function Board({ gameState, myPlayerId, selectedSquareId, onTileC
             {gameState.isNight ? '🌙' : '☀️'}
           </text>
         </g>
+
+        {/* +300€ badges when passing start square */}
+        {badges.map(badge => {
+          const startTile = tiles.find(t => t.idx === 0);
+          if (!startTile) return null;
+          return (
+            <text
+              key={badge.id}
+              x={startTile.screenX}
+              y={startTile.screenY - H / 2 - 10}
+              textAnchor="middle"
+              fontSize={11}
+              fontWeight="bold"
+              fill="#00ffc8"
+              style={{ animation: 'badge-float 1.3s ease-out forwards', pointerEvents: 'none' }}
+            >
+              +300€
+            </text>
+          );
+        })}
       </svg>
 
       {/* Contrôles plateau */}

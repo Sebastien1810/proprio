@@ -270,7 +270,7 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
         return visible.map((p, i) => {
           const tx = cx + (i - (n - 1) / 2) * gap;
           return (
-            <g key={p.id} style={{ pointerEvents: 'none' }}>
+            <g key={p.id} style={{ pointerEvents: 'none', animation: 'pion-hop 180ms ease-in-out' }}>
               <circle cx={tx} cy={ty} r={r} fill={p.color}
                 stroke="#07080f" strokeWidth={1.5}
                 style={{ filter: `drop-shadow(0 0 4px ${p.color}99)` }}

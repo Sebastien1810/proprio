@@ -134,8 +134,8 @@ function GameContent({ roomId }) {
       setTradeModal({ incoming: { tradeId, from, offer } });
     });
 
-    socket.on('alliance_proposed', ({ allianceId, from }) => {
-      setAllianceModal({ incoming: { allianceId, from } });
+    socket.on('alliance_proposed', ({ allianceId, fromId }) => {
+      setAllianceModal({ incoming: { allianceId, from: fromId } });
     });
 
     socket.on('alliance_formed', () => {
@@ -330,7 +330,7 @@ function GameContent({ roomId }) {
 
   return (
     <div className="min-h-screen bg-proprio-dark flex flex-col overflow-hidden" data-testid="game-page">
-      <MatrixBackground opacity={0.12} />
+      <MatrixBackground opacity={0.12} isNight={gameState?.isNight ?? false} />
 
       {/* HUD */}
       <HudBar

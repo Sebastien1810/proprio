@@ -32,6 +32,17 @@
   50%       { opacity: 0.2; }
 }
 
+@keyframes pion-hop {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes badge-float {
+  0%   { opacity: 1; transform: translateY(0); }
+  60%  { opacity: 1; transform: translateY(-14px); }
+  100% { opacity: 0; transform: translateY(-22px); }
+}
+
 :root {
   --bg-dark: #07080f;
   --bg-card: #0d0e1a;

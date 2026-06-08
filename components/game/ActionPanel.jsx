@@ -24,21 +24,34 @@ export default function ActionPanel({
     );
   }
 
-  const hasRolled   = lastAction?.rolled;
+  const hasRolled    = lastAction?.rolled;
   const mustRollAgain = lastAction?.mustRollAgain;
-  const sq          = me ? gameState.board[me.position] : null;
-  const pendingSq   = pendingPropertyId ? gameState.board.find(s => s.id === pendingPropertyId) : null;
+  const pendingSq    = pendingPropertyId ? gameState.board.find(s => s.id === pendingPropertyId) : null;
+
+  // Rent info from log (dice_rolled doesn't carry amount/owner)
+  const rentEntry = (hasRolled && lastAction?.action === 'pay_rent')
+    ? gameState.log?.slice().reverse().find(e =>
+        (e.type === 'rent' || e.type === 'pay_rent') && e.playerId === myPlayerId
+      )
+    : null;
+  const rentAmount    = rentEntry?.amount;
+  const rentOwnerName = rentEntry
+    ? (gameState.players?.find(p => p.id === rentEntry.ownerId)?.name ?? '?')
+    : null;
 
   return (
     <div
       className="fixed bottom-0 left-0 right-0 z-30 backdrop-blur-sm shadow-2xl"
-      style={{ background: 'rgba(13,14,26,0.97)', borderTop: '1px solid rgba(255,255,255,0.06)' }}
-      style={{ animation: 'slideUp 0.3s ease-out' }}
+      style={{
+        background:  'rgba(13,14,26,0.97)',
+        borderTop:   '1px solid rgba(255,255,255,0.06)',
+        animation:   'slideUp 0.3s ease-out',
+      }}
       data-testid="action-panel"
     >
       <div className="max-w-xl mx-auto px-4 py-4">
 
-        {/* Contexte du tour */}
+        {/* Avant le lancer */}
         {!hasRolled && !mustRollAgain && (
           <div className="space-y-3">
             <button
@@ -50,12 +63,11 @@ export default function ActionPanel({
               <span className="text-2xl">🎲</span>
               LANCER LES DÉS
             </button>
-
             <div className="flex gap-3">
               <button
                 onClick={onOpenTrade}
                 className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
+                style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
                 data-testid="open-trade-btn"
               >
                 Trade
@@ -63,7 +75,7 @@ export default function ActionPanel({
               <button
                 onClick={onOpenAlliance}
                 className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
+                style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
                 data-testid="open-alliance-btn"
               >
                 Alliance
@@ -90,7 +102,7 @@ export default function ActionPanel({
           </div>
         )}
 
-        {/* Après le lancer — prop disponible */}
+        {/* Propriété disponible */}
         {hasRolled && !mustRollAgain && pendingSq && (
           <div className="space-y-2">
             <div className="bg-blue-900/40 border border-blue-500/30 rounded-xl px-4 py-3">
@@ -125,19 +137,20 @@ export default function ActionPanel({
           </div>
         )}
 
-        {/* Après le lancer — loyer payé */}
+        {/* Loyer payé */}
         {hasRolled && !mustRollAgain && lastAction?.action === 'pay_rent' && (
           <div className="space-y-3">
             <div className="bg-red-900/30 border border-red-500/20 rounded-xl px-4 py-3 text-center">
               <p className="text-red-300 text-sm">
-                Loyer payé : <strong className="font-mono">{lastAction.rent}€</strong> à {lastAction.ownerName}
+                Loyer payé : <strong className="font-mono">{rentAmount ?? '?'}€</strong>
+                {rentOwnerName ? ` à ${rentOwnerName}` : ''}
               </p>
             </div>
             <EndTurnRow onEndTurn={onEndTurn} onOpenTrade={onOpenTrade} onOpenAlliance={onOpenAlliance} />
           </div>
         )}
 
-        {/* Après le lancer — autre action (taxe, prison, etc.) */}
+        {/* Autre action après lancer */}
         {hasRolled && !mustRollAgain && !pendingSq && lastAction?.action !== 'pay_rent' && (
           <EndTurnRow onEndTurn={onEndTurn} onOpenTrade={onOpenTrade} onOpenAlliance={onOpenAlliance} />
         )}
@@ -152,7 +165,7 @@ function EndTurnRow({ onEndTurn, onOpenTrade, onOpenAlliance }) {
       <button
         onClick={onOpenTrade}
         className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
+        style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
         data-testid="open-trade-btn"
       >
         Trade
@@ -160,15 +173,19 @@ function EndTurnRow({ onEndTurn, onOpenTrade, onOpenAlliance }) {
       <button
         onClick={onOpenAlliance}
         className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
+        style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
         data-testid="open-alliance-btn"
       >
         Alliance
       </button>
       <button
         onClick={onEndTurn}
-        className="flex-1 py-2.5 rounded-xl transition"
-        style={{ color: 'rgba(255,255,255,0.3)' }}
+        className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
+        style={{
+          background:   'rgba(255,255,255,0.07)',
+          color:        'rgba(255,255,255,0.82)',
+          borderColor:  'rgba(255,255,255,0.18)',
+        }}
         data-testid="end-turn-btn"
       >
         Fin de tour
