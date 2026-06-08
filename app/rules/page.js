@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import MatrixBackground from '../../components/MatrixBackground';
 
 const SECTIONS = [
   { id: 'overview',    label: "Vue d'ensemble" },
@@ -43,6 +44,7 @@ export default function RulesPage() {
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bg-dark)', color: '#fff' }}>
+      <MatrixBackground opacity={0.2} />
       {/* Sidebar */}
       <aside className="w-60 shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-white/10 bg-white/3 px-4 py-6">
         <Link href="/" className="flex items-center gap-2 text-gray-400 hover:text-white transition text-sm mb-6">

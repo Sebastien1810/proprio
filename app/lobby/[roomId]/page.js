@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getSocket } from '../../../lib/socket';
+import MatrixBackground from '../../../components/MatrixBackground';
 
 const PLAYER_COLORS = [
   '#00FFC8', '#FF2D78', '#A855F7', '#FF6B2B',
@@ -116,6 +117,7 @@ function LobbyContent({ roomId }) {
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
+      <MatrixBackground opacity={0.4} />
       <div className="w-full max-w-lg">
 
         {/* ── Header ───────────────────────────────────────────────────── */}

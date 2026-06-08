@@ -17,6 +17,7 @@ import ColocModal      from '../../../components/game/ColocModal';
 import ToastLog        from '../../../components/game/ToastLog';
 import RulesPanel      from '../../../components/game/RulesPanel';
 import GameLog         from '../../../components/game/GameLog';
+import MatrixBackground from '../../../components/MatrixBackground';
 
 let toastCounter = 0;
 function mkToast(message, type = 'info') {
@@ -329,6 +330,7 @@ function GameContent({ roomId }) {
 
   return (
     <div className="min-h-screen bg-proprio-dark flex flex-col overflow-hidden" data-testid="game-page">
+      <MatrixBackground opacity={0.12} />
 
       {/* HUD */}
       <HudBar
