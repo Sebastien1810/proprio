@@ -21,7 +21,7 @@ export default function AllianceModal({ gameState, myPlayerId, incoming, onPropo
         <div
           className="relative rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl z-10 text-center"
           style={{
-            background:  '#0d0e1a',
+            background:  '#22222e',
             border:      '1px solid rgba(168,85,247,0.45)',
             boxShadow:   '0 0 32px rgba(168,85,247,0.25)',
             animation:   'fadeIn 0.25s ease-out',
@@ -63,7 +63,7 @@ export default function AllianceModal({ gameState, myPlayerId, incoming, onPropo
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div
         className="relative rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl z-10"
-        style={{ background: '#0d0e1a', border: '1px solid rgba(255,255,255,0.1)' }}
+        style={{ background: '#22222e', border: '1px solid rgba(255,255,255,0.1)' }}
       >
         <button
           onClick={onClose}

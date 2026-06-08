@@ -26,7 +26,7 @@ export default function ToastLog({ toasts }) {
           key={toast.id}
           className="px-4 py-2.5 rounded-xl text-sm text-white max-w-xs shadow-2xl backdrop-blur-sm animate-[slideUp_0.3s_ease-out]"
           style={{
-            background:  '#0d0e1a',
+            background:  '#22222e',
             borderLeft:  `3px solid ${TYPE_COLOR[toast.type] ?? TYPE_COLOR.info}`,
             border:      `1px solid rgba(255,255,255,0.06)`,
             borderLeftColor: TYPE_COLOR[toast.type] ?? TYPE_COLOR.info,

@@ -44,13 +44,13 @@
 }
 
 :root {
-  --bg-dark: #07080f;
-  --bg-card: #0d0e1a;
+  --bg-dark: #1c1c24;
+  --bg-card: #22222e;
   --accent:  #00ffc8;
 }
 
 body {
-  background-color: #07080f;
+  background-color: #1c1c24;
   color: #ffffff;
   font-family: var(--font-inter), 'Segoe UI', system-ui, sans-serif;
 }

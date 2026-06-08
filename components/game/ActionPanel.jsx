@@ -43,7 +43,7 @@ export default function ActionPanel({
     <div
       className="fixed bottom-0 left-0 right-0 z-30 backdrop-blur-sm shadow-2xl"
       style={{
-        background:  'rgba(13,14,26,0.97)',
+        background:  'rgba(28,28,36,0.97)',
         borderTop:   '1px solid rgba(255,255,255,0.06)',
         animation:   'slideUp 0.3s ease-out',
       }}

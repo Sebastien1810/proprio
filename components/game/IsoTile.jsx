@@ -54,9 +54,9 @@ function OwnerPion({ cx, cy, player, r }) {
   );
 }
 
-const TILE_BASE  = '#0f1020';
-const TILE_LEFT  = '#070810';
-const TILE_RIGHT = '#0c0d1c';
+const TILE_BASE  = '#1a1a26';
+const TILE_LEFT  = '#141420';
+const TILE_RIGHT = '#181826';
 
 export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, colocPlayers, isSelected, isNight, onClick }) {
   const groupColor = sq.type === 'prop' ? (GROUP_COLORS[sq.group] ?? null) : null;
@@ -272,7 +272,7 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
           return (
             <g key={p.id} style={{ pointerEvents: 'none', animation: 'pion-hop 180ms ease-in-out' }}>
               <circle cx={tx} cy={ty} r={r} fill={p.color}
-                stroke="#07080f" strokeWidth={1.5}
+                stroke="#1c1c24" strokeWidth={1.5}
                 style={{ filter: `drop-shadow(0 0 4px ${p.color}99)` }}
               />
               <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize={r * 1.2}>

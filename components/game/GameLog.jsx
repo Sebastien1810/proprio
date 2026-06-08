@@ -220,7 +220,7 @@ export default function GameLog({ gameState, isOpen, onClose }) {
         className="fixed right-0 top-0 h-full z-50 flex flex-col"
         style={{
           width:      260,
-          background: '#0d0e1a',
+          background: '#22222e',
           borderLeft: '1px solid rgba(255,255,255,0.06)',
           transform:  isOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1)',

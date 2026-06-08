@@ -73,7 +73,7 @@ export default function HudBar({ gameState, myPlayerId, prevCashMap }) {
   return (
     <div
       className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md"
-      style={{ background: '#0d0e1a', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: '#22222e', borderBottom: '1px solid rgba(255,255,255,0.07)' }}
       data-testid="hud-bar"
     >
       <div className="flex items-center gap-3 px-4 py-2 overflow-x-auto">

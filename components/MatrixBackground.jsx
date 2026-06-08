@@ -11,10 +11,10 @@ const SEQ     = NAMES.join('');
 const FONT_SZ = 12;
 const TRAIL   = 22;
 
-// Day palette:  bg #07080f, trail #00ffc8
-// Night palette: bg ~#06041a (dark violet), trail #a855f7
-const DAY_BG    = [7,   8,  15];
-const NIGHT_BG  = [6,   4,  26];   // #04060d + rgba(10,0,40,0.3) blended
+// Day palette:  bg #1c1c24 (dark gray), trail #00ffc8
+// Night palette: bg #04091c (deep navy blue), trail #a855f7
+const DAY_BG    = [28,  28,  36];  // #1c1c24 — dark gray
+const NIGHT_BG  = [4,    9,  28];  // #04091c — deep navy blue
 const DAY_TRAIL = [0,   255, 200];  // #00ffc8
 const NIGHT_TRAIL = [168, 85, 247]; // #a855f7
 
