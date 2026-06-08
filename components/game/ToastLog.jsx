@@ -17,8 +17,7 @@ export default function ToastLog({ toasts }) {
 
   return (
     <div
-      className="fixed bottom-24 left-1/2 z-50 flex flex-col gap-2 pointer-events-none"
-      style={{ transform: 'translateX(-50%)' }}
+      className="fixed bottom-28 left-4 z-50 flex flex-col gap-2 pointer-events-none"
       data-testid="toast-log"
     >
       {visible.map(toast => (
