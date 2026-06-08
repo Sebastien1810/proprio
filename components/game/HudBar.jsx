@@ -21,14 +21,15 @@ function CashChip({ player, isActive, isMe, prevCash }) {
     <div
       className={`
         relative flex items-center gap-2 px-3 py-2 rounded-xl border transition-all
-        ${isActive
-          ? 'bg-proprio-gold/20 border-proprio-gold/60 shadow-lg shadow-proprio-gold/20'
-          : player.disconnected
-            ? 'bg-white/3 border-white/10 opacity-40'
-            : 'bg-white/5 border-white/10'
-        }
-        ${isMe ? 'ring-1 ring-white/30' : ''}
+        ${player.disconnected ? 'opacity-40' : ''}
       `}
+      style={{
+        background:  isActive ? `${player.color}18` : 'rgba(255,255,255,0.03)',
+        borderColor: isActive ? `${player.color}90` : 'rgba(255,255,255,0.06)',
+        boxShadow:   isActive ? `0 0 12px ${player.color}40` : 'none',
+        outline:     isMe ? '1px solid rgba(255,255,255,0.2)' : 'none',
+        outlineOffset: '2px',
+      }}
     >
       <span
         className="w-4 h-4 rounded-full flex-shrink-0 text-xs flex items-center justify-center"
@@ -40,10 +41,12 @@ function CashChip({ player, isActive, isMe, prevCash }) {
         {player.pion?.emoji ?? '●'}
       </span>
       <div className="min-w-0">
-        <div className={`text-xs font-semibold truncate max-w-[80px] ${isActive ? 'text-white' : 'text-gray-300'}`}>
+        <div className="text-xs font-semibold truncate max-w-[80px]"
+          style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.45)' }}>
           {player.name}{isMe ? ' (toi)' : ''}
         </div>
-        <div className={`font-bebas tracking-wider text-sm ${isActive ? 'text-proprio-gold' : 'text-gray-400'}`}>
+        <div className="font-bebas tracking-wider text-sm"
+          style={{ color: isActive ? player.color : 'rgba(255,255,255,0.3)' }}>
           {player.cash.toLocaleString()}€
         </div>
       </div>
@@ -69,7 +72,8 @@ export default function HudBar({ gameState, myPlayerId, prevCashMap }) {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-40 bg-proprio-dark/90 backdrop-blur-md border-b border-white/10"
+      className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md"
+      style={{ background: '#0d0e1a', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
       data-testid="hud-bar"
     >
       <div className="flex items-center gap-3 px-4 py-2 overflow-x-auto">

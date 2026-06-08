@@ -12,11 +12,11 @@ module.exports = {
       },
       colors: {
         proprio: {
-          dark: '#1a1a2e',
-          card: '#16213e',
-          accent: '#e94560',
-          gold: '#f5a623',
-          green: '#27ae60',
+          dark:   '#07080f',
+          card:   '#0d0e1a',
+          tile:   '#0f1020',
+          accent: '#00ffc8',
+          green:  '#27ae60',
         },
       },
     },

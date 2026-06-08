@@ -54,10 +54,12 @@ function OwnerPion({ cx, cy, player, r }) {
   );
 }
 
+const TILE_BASE  = '#0f1020';
+const TILE_LEFT  = '#070810';
+const TILE_RIGHT = '#0c0d1c';
+
 export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, colocPlayers, isSelected, isNight, onClick }) {
-  const base  = getTileColor(sq);
-  const left  = darken(base, 45);
-  const right = darken(base, 28);
+  const groupColor = sq.type === 'prop' ? (GROUP_COLORS[sq.group] ?? null) : null;
 
   const top  = [cx,       cy - H / 2];
   const rt   = [cx + W/2, cy        ];
@@ -67,6 +69,11 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
   const botD = [cx,       cy + H/2 + D];
   const lftD = [cx - W/2, cy + D      ];
   const rtD  = [cx + W/2, cy + D      ];
+
+  // Barre de groupe : triangle dans le tiers supérieur du losange
+  const bf   = 0.22;
+  const barL = [cx - W/2 * bf, cy - H/2 + H/2 * bf];
+  const barR = [cx + W/2 * bf, cy - H/2 + H/2 * bf];
 
   const isCorner  = CORNER_LABEL[sq.type];
   const isSpecial = SPECIAL_LABEL[sq.type];
@@ -124,16 +131,25 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
       )}
 
       {/* Left face */}
-      <polygon points={pts([lft, lftD, botD, bot])} fill={left} />
+      <polygon points={pts([lft, lftD, botD, bot])} fill={TILE_LEFT} />
       {/* Right face */}
-      <polygon points={pts([rt, rtD, botD, bot])} fill={right} />
+      <polygon points={pts([rt, rtD, botD, bot])} fill={TILE_RIGHT} />
       {/* Top face */}
       <polygon
         points={pts([top, rt, bot, lft])}
-        fill={base}
-        stroke={isSelected ? '#f5a623' : 'rgba(0,0,0,0.25)'}
+        fill={TILE_BASE}
+        stroke={isSelected ? '#00ffc8' : 'rgba(255,255,255,0.06)'}
         strokeWidth={isSelected ? 1.5 : 0.5}
       />
+      {/* Barre de groupe (prop uniquement) */}
+      {groupColor && !sq.mortgaged && (
+        <polygon
+          points={pts([top, barR, barL])}
+          fill={groupColor}
+          fillOpacity={0.9}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
 
       {/* Mortgage: stripes + dark overlay */}
       {sq.mortgaged && (
@@ -244,19 +260,22 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
         </>
       )}
 
-      {/* Player tokens (pions sur la case) — jusqu'à 8 joueurs */}
+      {/* Pions joueurs — flottent au-dessus du sommet de la tuile */}
       {(() => {
         const visible = players.slice(0, 8);
         const n   = visible.length;
-        const r   = n <= 3 ? 6 : n <= 5 ? 5 : 4;
-        const gap = n > 1 ? Math.min((W * 0.38) / (n - 1), W / 5) : 0;
-        const ty  = cy - H / 5;
+        const r   = n <= 3 ? 7 : n <= 5 ? 6 : 5;
+        const gap = n > 1 ? Math.min((W * 0.5) / (n - 1), W / 4) : 0;
+        const ty  = cy - H / 2 - r - 3;
         return visible.map((p, i) => {
           const tx = cx + (i - (n - 1) / 2) * gap;
           return (
             <g key={p.id} style={{ pointerEvents: 'none' }}>
-              <circle cx={tx} cy={ty} r={r} fill={p.color} stroke="white" strokeWidth={0.8} />
-              <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize={r * 1.3}>
+              <circle cx={tx} cy={ty} r={r} fill={p.color}
+                stroke="#07080f" strokeWidth={1.5}
+                style={{ filter: `drop-shadow(0 0 4px ${p.color}99)` }}
+              />
+              <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize={r * 1.2}>
                 {p.pion?.emoji ?? '●'}
               </text>
             </g>

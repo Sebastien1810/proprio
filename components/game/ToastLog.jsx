@@ -1,35 +1,37 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+const TYPE_COLOR = {
+  buy:      '#00FFC8',
+  rent:     '#FF2D78',
+  build:    '#A855F7',
+  alliance: '#00B4FF',
+  strike:   '#FF6B2B',
+  night:    '#FFE600',
+  warn:     '#FF3B3B',
+  info:     'rgba(255,255,255,0.3)',
+  event:    '#F59E0B',
+};
 
 export default function ToastLog({ toasts }) {
-  // toasts : [{ id, message, type }]
-  // type: 'info' | 'buy' | 'rent' | 'build' | 'alliance' | 'strike' | 'night' | 'warn'
-
-  const TYPE_STYLE = {
-    buy:      'bg-blue-900/90 border-blue-500/50',
-    rent:     'bg-red-900/90 border-red-500/50',
-    build:    'bg-green-900/90 border-green-500/50',
-    alliance: 'bg-purple-900/90 border-purple-500/50',
-    strike:   'bg-orange-900/90 border-orange-500/50',
-    night:    'bg-indigo-900/90 border-indigo-500/50',
-    warn:     'bg-yellow-900/90 border-yellow-500/50',
-    info:     'bg-gray-800/90 border-white/20',
-  };
-
-  const visible = toasts.slice(-4);
+  const visible = toasts.slice(-3);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none" data-testid="toast-log">
+    <div
+      className="fixed bottom-24 left-1/2 z-50 flex flex-col gap-2 pointer-events-none"
+      style={{ transform: 'translateX(-50%)' }}
+      data-testid="toast-log"
+    >
       {visible.map(toast => (
         <div
           key={toast.id}
-          className={`
-            px-4 py-2.5 rounded-xl border text-sm text-white max-w-xs
-            shadow-2xl backdrop-blur-sm
-            animate-[slideInRight_0.3s_ease-out]
-            ${TYPE_STYLE[toast.type] ?? TYPE_STYLE.info}
-          `}
+          className="px-4 py-2.5 rounded-xl text-sm text-white max-w-xs shadow-2xl backdrop-blur-sm animate-[slideUp_0.3s_ease-out]"
+          style={{
+            background:  '#0d0e1a',
+            borderLeft:  `3px solid ${TYPE_COLOR[toast.type] ?? TYPE_COLOR.info}`,
+            border:      `1px solid rgba(255,255,255,0.06)`,
+            borderLeftColor: TYPE_COLOR[toast.type] ?? TYPE_COLOR.info,
+            borderLeftWidth: '3px',
+          }}
         >
           {toast.message}
         </div>

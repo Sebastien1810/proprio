@@ -4,6 +4,11 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getSocket } from '../../../lib/socket';
 
+const PLAYER_COLORS = [
+  '#00FFC8', '#FF2D78', '#A855F7', '#FF6B2B',
+  '#00B4FF', '#FFE600', '#FF3B3B', '#7FFF00',
+];
+
 const PIONS = [
   { id: 0, emoji: '🏀', label: 'Ballon' },
   { id: 1, emoji: '✊', label: 'Poing' },
@@ -31,8 +36,10 @@ function LobbyContent({ roomId }) {
   const connectedPlayers = roomData?.players?.filter(p => p.connected) ?? [];
   const isHost           = roomData?.hostId === playerId;
   const canStart         = isHost && connectedPlayers.length >= 2;
-  const lobbyPions       = roomData?.lobbyPions ?? {};
-  const myPionId         = lobbyPions[playerId] ?? null;
+  const lobbyPions       = roomData?.lobbyPions  ?? {};
+  const lobbyColors      = roomData?.lobbyColors ?? {};
+  const myPionId         = lobbyPions[playerId]  ?? null;
+  const myColorId        = lobbyColors[playerId] ?? null;
 
   useEffect(() => {
     if (!playerId) return;
@@ -82,9 +89,16 @@ function LobbyContent({ roomId }) {
     getSocket().emit('pick_pion', { roomId, playerId, pionId });
   }
 
-  // Pion pris par un autre joueur
+  function handlePickColor(colorId) {
+    getSocket().emit('pick_color', { roomId, playerId, colorId });
+  }
+
   function isPionTakenByOther(pionId) {
     return Object.entries(lobbyPions).some(([pid, pid2]) => pid2 === pionId && pid !== playerId);
+  }
+
+  function isColorTakenByOther(colorId) {
+    return Object.entries(lobbyColors).some(([pid, cid]) => cid === colorId && pid !== playerId);
   }
 
   if (!playerId) {
@@ -174,6 +188,36 @@ function LobbyContent({ roomId }) {
           {myPionId !== null && (
             <p className="text-center text-xs text-gray-400 mt-2">
               Tu joues avec {PIONS[myPionId]?.emoji} {PIONS[myPionId]?.label}
+            </p>
+          )}
+
+          {/* Color picker */}
+          <h2 className="text-xs text-gray-400 uppercase tracking-widest mt-4 mb-3">Ta couleur</h2>
+          <div className="grid grid-cols-8 gap-2">
+            {PLAYER_COLORS.map((color, colorId) => {
+              const taken = isColorTakenByOther(colorId);
+              const mine  = myColorId === colorId;
+              return (
+                <button
+                  key={colorId}
+                  onClick={() => !taken && handlePickColor(colorId)}
+                  disabled={taken}
+                  title={color}
+                  className={`w-8 h-8 rounded-full transition-all duration-150 ${
+                    taken ? 'opacity-20 cursor-not-allowed' : 'hover:scale-110 cursor-pointer'
+                  }`}
+                  style={{
+                    backgroundColor: color,
+                    boxShadow: mine ? `0 0 0 2px #07080f, 0 0 0 4px ${color}` : 'none',
+                    transform: mine ? 'scale(1.15)' : undefined,
+                  }}
+                />
+              );
+            })}
+          </div>
+          {myColorId !== null && (
+            <p className="text-center text-xs text-gray-400 mt-2">
+              Ta couleur : <span style={{ color: PLAYER_COLORS[myColorId] }}>●</span> {PLAYER_COLORS[myColorId]}
             </p>
           )}
         </div>

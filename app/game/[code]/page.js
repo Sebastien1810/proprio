@@ -16,6 +16,7 @@ import AllianceModal   from '../../../components/game/AllianceModal';
 import ColocModal      from '../../../components/game/ColocModal';
 import ToastLog        from '../../../components/game/ToastLog';
 import RulesPanel      from '../../../components/game/RulesPanel';
+import GameLog         from '../../../components/game/GameLog';
 
 let toastCounter = 0;
 function mkToast(message, type = 'info') {
@@ -41,6 +42,7 @@ function GameContent({ roomId }) {
   const [toasts,          setToasts]          = useState([]);
   const [lastAction,      setLastAction]      = useState(null);
   const [pendingPropId,   setPendingPropId]   = useState(null);
+  const [gameLogOpen,     setGameLogOpen]     = useState(false);
 
   const prevCashMap  = useRef({});
   const gsRef        = useRef(null);
@@ -500,6 +502,23 @@ function GameContent({ roomId }) {
 
       {/* Toast log */}
       <ToastLog toasts={toasts} />
+
+      {/* Bouton fil du jeu */}
+      <button
+        onClick={() => setGameLogOpen(true)}
+        className="fixed bottom-24 right-4 z-30 w-10 h-10 rounded-full flex items-center justify-center text-lg transition"
+        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)' }}
+        title="Fil du jeu"
+      >
+        📋
+      </button>
+
+      {/* Panneau fil du jeu */}
+      <GameLog
+        gameState={gameState}
+        isOpen={gameLogOpen}
+        onClose={() => setGameLogOpen(false)}
+      />
 
       {/* Panneau règles */}
       <RulesPanel activeModals={{

@@ -31,7 +31,8 @@ export default function ActionPanel({
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-30 bg-proprio-card/95 backdrop-blur-sm border-t border-white/20 shadow-2xl"
+      className="fixed bottom-0 left-0 right-0 z-30 backdrop-blur-sm shadow-2xl"
+      style={{ background: 'rgba(13,14,26,0.97)', borderTop: '1px solid rgba(255,255,255,0.06)' }}
       style={{ animation: 'slideUp 0.3s ease-out' }}
       data-testid="action-panel"
     >
@@ -42,7 +43,8 @@ export default function ActionPanel({
           <div className="space-y-3">
             <button
               onClick={onRollDice}
-              className="w-full bg-proprio-accent hover:bg-red-600 text-white py-4 rounded-xl transition flex items-center justify-center gap-2 font-bebas tracking-widest text-2xl"
+              className="w-full py-4 rounded-xl transition flex items-center justify-center gap-2 font-bebas tracking-widest text-2xl font-bold"
+              style={{ background: '#00ffc8', color: '#07080f' }}
               data-testid="roll-dice-btn"
             >
               <span className="text-2xl">🎲</span>
@@ -52,14 +54,16 @@ export default function ActionPanel({
             <div className="flex gap-3">
               <button
                 onClick={onOpenTrade}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-gray-300 font-medium py-2.5 rounded-xl transition text-sm"
+                className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
+              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
                 data-testid="open-trade-btn"
               >
                 Trade
               </button>
               <button
                 onClick={onOpenAlliance}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-gray-300 font-medium py-2.5 rounded-xl transition text-sm"
+                className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
+              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
                 data-testid="open-alliance-btn"
               >
                 Alliance
@@ -76,7 +80,8 @@ export default function ActionPanel({
             </div>
             <button
               onClick={onRollDice}
-              className="w-full bg-proprio-accent hover:bg-red-600 text-white py-4 rounded-xl transition flex items-center justify-center gap-2 font-bebas tracking-widest text-2xl"
+              className="w-full py-4 rounded-xl transition flex items-center justify-center gap-2 font-bebas tracking-widest text-2xl font-bold"
+              style={{ background: '#00ffc8', color: '#07080f' }}
               data-testid="roll-again-btn"
             >
               <span className="text-2xl">🎲</span>
@@ -96,7 +101,8 @@ export default function ActionPanel({
             <div className="flex gap-3">
               <button
                 onClick={() => onBuy?.(pendingSq.id)}
-                className="flex-1 bg-proprio-accent hover:bg-red-600 text-white py-3 rounded-xl transition font-bebas tracking-wider text-xl"
+                className="flex-1 py-3 rounded-xl transition font-bebas tracking-wider text-xl font-bold"
+                style={{ background: '#00ffc8', color: '#07080f' }}
                 data-testid="buy-btn"
               >
                 ACHETER · {pendingSq.price}€
@@ -145,21 +151,24 @@ function EndTurnRow({ onEndTurn, onOpenTrade, onOpenAlliance }) {
     <div className="flex gap-3">
       <button
         onClick={onOpenTrade}
-        className="flex-1 bg-white/10 hover:bg-white/20 text-gray-300 font-medium py-2.5 rounded-xl transition text-sm"
+        className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
+              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
         data-testid="open-trade-btn"
       >
         Trade
       </button>
       <button
         onClick={onOpenAlliance}
-        className="flex-1 bg-white/10 hover:bg-white/20 text-gray-300 font-medium py-2.5 rounded-xl transition text-sm"
+        className="flex-1 font-medium py-2.5 rounded-xl transition text-sm border"
+              style={{ background: 'rgba(255,255,255,0.06)', color: '#fff', borderColor: 'rgba(255,255,255,0.08)' }}
         data-testid="open-alliance-btn"
       >
         Alliance
       </button>
       <button
         onClick={onEndTurn}
-        className="flex-1 bg-white/15 hover:bg-white/25 text-white font-bold py-2.5 rounded-xl transition"
+        className="flex-1 py-2.5 rounded-xl transition"
+        style={{ color: 'rgba(255,255,255,0.3)' }}
         data-testid="end-turn-btn"
       >
         Fin de tour

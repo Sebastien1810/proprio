@@ -55,19 +55,22 @@ async function buildRoomPayload(roomId) {
   });
   if (!room) return null;
   const boardInfo = getBoardConfig(room.players.length);
-  const lobbyPions = room.gameState?.lobbyPions ?? {};
+  const lobbyPions  = room.gameState?.lobbyPions  ?? {};
+  const lobbyColors = room.gameState?.lobbyColors ?? {};
   return {
     roomId:     room.id,
     code:       room.code,
     status:     room.status,
     hostId:     room.players[0]?.id ?? null,
     lobbyPions,
+    lobbyColors,
     players:  room.players.map(p => ({
       id:        p.id,
       name:      p.name,
       color:     p.color,
       connected: !!p.socketId,
-      pionId:    lobbyPions[p.id] ?? null,
+      pionId:    lobbyPions[p.id]  ?? null,
+      colorId:   lobbyColors[p.id] ?? null,
     })),
     boardInfo,
   };
@@ -155,6 +158,27 @@ function attachHandlers(io) {
       }
     });
 
+    // ── pick_color ────────────────────────────────────────────────────────
+    socket.on('pick_color', async ({ roomId, playerId, colorId }) => {
+      try {
+        const room = await prisma.room.findUnique({ where: { id: roomId } });
+        if (!room || room.status !== 'waiting') return;
+
+        const existing = room.gameState?.lobbyColors ?? {};
+        const takenBy  = Object.entries(existing).find(([pid, cid]) => cid === colorId && pid !== playerId);
+        if (takenBy) return socket.emit('error', { message: 'Cette couleur est déjà prise' });
+
+        const lobbyColors = { ...existing, [playerId]: colorId };
+        const newGs = { ...(room.gameState ?? {}), lobbyColors };
+        await prisma.room.update({ where: { id: roomId }, data: { gameState: newGs } });
+
+        const payload = await buildRoomPayload(roomId);
+        io.to(roomId).emit('room_updated', payload);
+      } catch (err) {
+        console.error('[pick_color]', err);
+      }
+    });
+
     // ── start_game ────────────────────────────────────────────────────────
     socket.on('start_game', async ({ roomId }) => {
       try {
@@ -168,8 +192,9 @@ function attachHandlers(io) {
         if (room.players[0].id !== socket.data?.playerId)
           return socket.emit('error', { message: "Seul l'hôte peut lancer la partie" });
 
-        const pionChoices = room.gameState?.lobbyPions ?? {};
-        const gs = initGameState(room.players, undefined, undefined, pionChoices);
+        const pionChoices  = room.gameState?.lobbyPions  ?? {};
+        const colorChoices = room.gameState?.lobbyColors ?? {};
+        const gs = initGameState(room.players, undefined, undefined, pionChoices, colorChoices);
         await prisma.room.update({
           where: { id: roomId },
           data:  { status: 'playing', gameState: gs },
