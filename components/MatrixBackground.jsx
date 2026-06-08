@@ -7,21 +7,10 @@ const NAMES = [
   'Rocket', 'Inss', 'Weez', 'Rbz', 'Sannael',
   'Yorick', 'Biggy', 'Louis', 'LOA', 'Joker',
 ];
-
-const FONT_SIZE   = 12;
-const COL_WIDTH   = 90;
-const LINE_GAP    = 32;
-const STREAM_LEN  = 13;
-const TAIL_H      = (STREAM_LEN - 1) * LINE_GAP; // 384 px
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// Flat sequence of letters, cycled through by each column
+const SEQ     = NAMES.join('');
+const FONT_SZ = 12;
+const TRAIL   = 22; // characters in each falling stream
 
 export default function MatrixBackground({ opacity = 0.4 }) {
   const canvasRef = useRef(null);
@@ -33,60 +22,71 @@ export default function MatrixBackground({ opacity = 0.4 }) {
     let rafId;
     let cols = [];
 
-    function buildCols(w, h) {
-      const n = Math.ceil(w / COL_WIDTH);
+    function init(w, h) {
+      const n = Math.ceil(w / FONT_SZ);
       cols = Array.from({ length: n }, (_, i) => ({
-        x:     i * COL_WIDTH + COL_WIDTH / 2,
-        // scatter: some columns start mid-screen, others above
-        y:     Math.random() * (h + TAIL_H) - TAIL_H,
-        speed: 0.3 + Math.random() * 0.2,
-        names: shuffle(NAMES),
+        x:      i * FONT_SZ + FONT_SZ / 2,
+        // scatter: some columns start mid-screen, some above
+        headPx: Math.random() * (h + TRAIL * FONT_SZ) - TRAIL * FONT_SZ,
+        speed:  0.3 + Math.random() * 0.2,           // px / frame
+        seqPos: Math.floor(Math.random() * SEQ.length),
+        trail:  [],   // [{ row, charIdx }], index 0 = head (bottom)
       }));
     }
 
     function resize() {
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
-      buildCols(canvas.width, canvas.height);
+      init(canvas.width, canvas.height);
     }
 
-    function tick() {
+    function frame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font      = `${FONT_SIZE}px monospace`;
+      ctx.font      = `${FONT_SZ}px monospace`;
       ctx.textAlign = 'center';
 
       for (const col of cols) {
-        col.y += col.speed;
+        col.headPx += col.speed;
 
-        // Reset once the entire stream has scrolled past the bottom
-        if (col.y - TAIL_H > canvas.height + FONT_SIZE) {
-          col.y     = -FONT_SIZE - Math.random() * 200;
-          col.names = shuffle(NAMES);
+        const headRow = Math.floor(col.headPx / FONT_SZ);
+        const prevRow = col.trail.length > 0 ? col.trail[0].row : headRow - 1;
+
+        // Extend trail for every new row the head has entered this frame
+        // (at most 1 per frame since speed ≤ 0.5 px/frame and FONT_SZ = 12)
+        for (let r = prevRow + 1; r <= headRow; r++) {
+          col.trail.unshift({ row: r, charIdx: col.seqPos });
+          col.seqPos = (col.seqPos + 1) % SEQ.length;
+        }
+        if (col.trail.length > TRAIL) col.trail.length = TRAIL;
+
+        // Reset once the whole stream has scrolled past the bottom
+        if (col.headPx > canvas.height + TRAIL * FONT_SZ) {
+          col.headPx = -FONT_SZ - Math.random() * TRAIL * FONT_SZ;
+          col.trail  = [];
+          // seqPos keeps advancing naturally through the sequence
         }
 
-        for (let j = 0; j < STREAM_LEN; j++) {
-          const ny = col.y - j * LINE_GAP;
-          if (ny < -FONT_SIZE || ny > canvas.height + FONT_SIZE) continue;
+        // Draw each character in the stream
+        for (let j = 0; j < col.trail.length; j++) {
+          const { row, charIdx } = col.trail[j];
+          const py = row * FONT_SZ;
+          if (py + FONT_SZ < 0 || py > canvas.height) continue;
 
-          if (j === 0) {
-            ctx.fillStyle = '#ffffff';
-          } else {
-            // fade from bright teal to transparent toward the tail
-            const t     = (STREAM_LEN - j) / STREAM_LEN;
-            const alpha = Math.pow(t, 1.7).toFixed(3);
-            ctx.fillStyle = `rgba(0,255,200,${alpha})`;
-          }
+          // j=0 → head → white; j>0 → teal fading to transparent
+          ctx.fillStyle = j === 0
+            ? '#ffffff'
+            : `rgba(0,255,200,${Math.pow((TRAIL - j) / TRAIL, 1.5).toFixed(3)})`;
 
-          ctx.fillText(col.names[j % col.names.length], col.x, ny);
+          ctx.fillText(SEQ[charIdx], col.x, py + FONT_SZ);
         }
       }
 
-      rafId = requestAnimationFrame(tick);
+      rafId = requestAnimationFrame(frame);
     }
 
     resize();
     window.addEventListener('resize', resize);
-    tick();
+    frame();
 
     return () => {
       cancelAnimationFrame(rafId);
