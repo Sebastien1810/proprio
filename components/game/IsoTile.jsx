@@ -84,10 +84,16 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
     label = isSpecial;
   }
 
-  // Band at bottom of diamond top face
-  const bandH = Math.max(4, H * 0.18);
-  const bTL   = [cx - W * bandH / H, cy + H/2 - bandH];
-  const bTR   = [cx + W * bandH / H, cy + H/2 - bandH];
+  // Border indicator
+  const isColoc      = colocPlayers && colocPlayers.length >= 2;
+  const borderGradId = `colocGrad-${sq.id}`;
+  const borderStroke = sq.mortgaged
+    ? 'rgb(239,68,68)'
+    : isColoc
+      ? `url(#${borderGradId})`
+      : ownerPlayer
+        ? ownerPlayer.color
+        : null;
 
   // Who to show as owner(s)
   const displayOwners = colocPlayers && colocPlayers.length >= 2
@@ -106,11 +112,22 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
       data-sq-id={sq.id}
       data-sq-idx={sq.idx}
     >
-      {sq.mortgaged && (
+      {(sq.mortgaged || isColoc) && (
         <defs>
-          <pattern id={patternId} patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(255,255,255,0.22)" strokeWidth="3" />
-          </pattern>
+          {sq.mortgaged && (
+            <pattern id={patternId} patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(255,255,255,0.22)" strokeWidth="3" />
+            </pattern>
+          )}
+          {isColoc && (
+            <linearGradient id={borderGradId} gradientUnits="userSpaceOnUse"
+              x1={cx - W / 2} y1={cy} x2={cx + W / 2} y2={cy}>
+              <stop offset="0%"   stopColor={colocPlayers[0].color} />
+              <stop offset="50%"  stopColor={colocPlayers[0].color} />
+              <stop offset="50%"  stopColor={colocPlayers[1].color} />
+              <stop offset="100%" stopColor={colocPlayers[1].color} />
+            </linearGradient>
+          )}
         </defs>
       )}
 
@@ -126,16 +143,6 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
         strokeWidth={isSelected ? 1.5 : 0.5}
       />
 
-      {/* Owner tint */}
-      {ownerPlayer && (
-        <polygon
-          points={pts([top, rt, bot, lft])}
-          fill={ownerPlayer.color}
-          fillOpacity={0.15}
-          style={{ pointerEvents: 'none' }}
-        />
-      )}
-
       {/* Mortgage: stripes + dark overlay */}
       {sq.mortgaged && (
         <>
@@ -149,12 +156,14 @@ export default function IsoTile({ sq, cx, cy, W, H, D, players, ownerPlayer, col
         <polygon points={pts([top, rt, bot, lft])} fill="rgba(245,166,35,0.25)" style={{ pointerEvents: 'none' }} />
       )}
 
-      {/* Owner band at bottom of top face */}
-      {ownerPlayer && !sq.mortgaged && (
+      {/* Owner border (liseré coloré) */}
+      {borderStroke && (
         <polygon
-          points={pts([bTL, bTR, bot])}
-          fill={ownerPlayer.color}
-          fillOpacity={0.88}
+          points={pts([top, rt, bot, lft])}
+          fill="none"
+          stroke={borderStroke}
+          strokeWidth={3}
+          strokeLinejoin="round"
           style={{ pointerEvents: 'none' }}
         />
       )}

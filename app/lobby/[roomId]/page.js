@@ -9,6 +9,10 @@ const PIONS = [
   { id: 1, emoji: '✊', label: 'Poing' },
   { id: 2, emoji: '🐱', label: 'Chat' },
   { id: 3, emoji: '🐍', label: 'Serpent' },
+  { id: 4, emoji: '🎮', label: 'Manette' },
+  { id: 5, emoji: '👑', label: 'Couronne' },
+  { id: 6, emoji: '⚡', label: 'Éclair' },
+  { id: 7, emoji: '🎯', label: 'Cible' },
 ];
 
 const BOARD_EMOJI  = { 40: '🏘️', 60: '🏙️', 80: '🌆' };
@@ -140,7 +144,7 @@ function LobbyContent({ roomId }) {
         {/* ── Choix du pion ─────────────────────────────────────────────── */}
         <div className="bg-proprio-card rounded-2xl p-5 border border-white/10 mb-4">
           <h2 className="text-xs text-gray-400 uppercase tracking-widest mb-3">Ton pion</h2>
-          <div className="flex gap-3 justify-center">
+          <div className="grid grid-cols-4 gap-3 justify-items-center">
             {PIONS.map(pion => {
               const taken  = isPionTakenByOther(pion.id);
               const mine   = myPionId === pion.id;
